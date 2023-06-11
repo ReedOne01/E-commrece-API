@@ -1,8 +1,13 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
+const connectDB = require("./config/db");
+const { default: mongoose } = require("mongoose");
 app.use(express.json());
 
-app.use("/", require("./routes/userRoute"));
+connectDB(process.env.MONGO_URI);
+
+app.use("/auth", require("./routes/userRoute"));
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

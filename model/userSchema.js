@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const userSchema = mongoose.Schema({
-  name: {
+  fullname: {
     type: String,
     required: [true, "please enter a name"],
     trim: true,
@@ -21,7 +22,7 @@ const userSchema = mongoose.Schema({
   tokens: [
     {
       token: {
-        required: [true, "please enter your token"],
+        required: true,
         type: String,
       },
     },
@@ -36,7 +37,7 @@ const userSchema = mongoose.Schema({
       }
     },
   },
-  timestamps: true,
+  // timestamps: true,
 });
 
 module.exports = mongoose.model("User", userSchema);

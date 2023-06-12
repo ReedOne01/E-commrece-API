@@ -76,10 +76,14 @@ const logoutAll = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 const allUser = async (req, res) => {
   try {
     const user = await Auth.find();
-    res.status(200).json({ users: user });
+    res.status(200).json({
+      Total: user.length,
+      users: user,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -17,6 +17,8 @@ const userSchema = mongoose.Schema({
       if (value.toLowerCase().includes("password")) {
         throw new Error("password must not contain password");
       }
+      {
+      }
     },
   },
   tokens: [
@@ -37,7 +39,10 @@ const userSchema = mongoose.Schema({
       }
     },
   },
-  // timestamps: true,
+  time: {
+    type: Date,
+    default: Date.now(),
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);

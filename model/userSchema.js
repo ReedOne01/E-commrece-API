@@ -13,12 +13,22 @@ const userSchema = mongoose.Schema({
     required: [true, "please enter a password"],
     minLenght: 7,
     trim: true,
-    validate(value) {
-      if (value.toLowerCase().includes("password")) {
-        throw new Error("password must not contain password");
-      }
-      {
-      }
+    validate: {
+      validator: function (value) {
+        if (value.toLowerCase().includes("password"))
+          throw new Error("password must not contain password");
+      },
+    },
+  },
+  confirmPassword: {
+    type: String,
+    required: [true, "please confirm your password"],
+    trim: true,
+    validate: {
+      validator: function (value) {
+        return value === this.password;
+      },
+      message: "password is not the same",
     },
   },
   tokens: [
@@ -33,11 +43,8 @@ const userSchema = mongoose.Schema({
     type: String,
     unique: true,
     lowercase: true,
-    validate(value) {
-      if (!validator.isEmail(value)) {
-        throw new Error("email is not valid");
-      }
-    },
+    required: [true, "please enter your email address"],
+    validate: [validator.isEmail, "please enter a valid email address"],
   },
   time: {
     type: Date,

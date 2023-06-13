@@ -21,11 +21,24 @@ const cartSchema = mongoose.model({
         default: 1,
         price: Number,
       },
+      size: {
+        type: Number,
+      },
     },
   ],
-  bill: {
+  price: {
     type: Number,
     default: 0,
     required: true,
+  },
+  image: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+  },
+  reviews: {
+    type: String,
   },
 });

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const bcrypt = require("bcryptjs");
 
 const userSchema = mongoose.Schema({
   fullname: {
@@ -13,6 +14,7 @@ const userSchema = mongoose.Schema({
     required: [true, "please enter a password"],
     minLenght: 7,
     trim: true,
+    select: false,
     validate: {
       validator: function (value) {
         if (value.toLowerCase().includes("password"))
@@ -31,14 +33,12 @@ const userSchema = mongoose.Schema({
       message: "password is not the same",
     },
   },
-  tokens: [
-    {
-      token: {
-        required: true,
-        type: String,
-      },
-    },
-  ],
+
+  token: {
+    required: true,
+    type: String,
+  },
+
   email: {
     type: String,
     unique: true,
@@ -46,10 +46,20 @@ const userSchema = mongoose.Schema({
     required: [true, "please enter your email address"],
     validate: [validator.isEmail, "please enter a valid email address"],
   },
-  time: {
+  CreatedAt: {
     type: Date,
     default: Date.now(),
   },
 });
+userSchema.pre("save", async function (next) {
+  //Only runs if the password is modified
+  if (!this.isModified("password")) return next();
 
+  // hash the password with cost 12
+  this.password = await bcrypt.hash(this.password, 12);
+
+  //Delete comfirmPassword field
+  this.confirmPassword = undefined;
+  next();
+});
 module.exports = mongoose.model("User", userSchema);

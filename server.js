@@ -8,6 +8,7 @@ app.use(express.json());
 connectDB(process.env.MONGO_URI);
 
 app.use("/auth", require("./routes/userRoute"));
+app.use("/", require("./routes/itemRoute"));
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

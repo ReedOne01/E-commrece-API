@@ -4,10 +4,8 @@ const Auth = require("../middleware/authMiddleware");
 const createItem = async (req, res) => {
   try {
     const { owner, name, description, price } = req.body;
-    if (!owner || !name || !description || !price)
-      throw new Error(
-        "please enter the neccessary name and description required"
-      );
+    if (!name || !description || !price)
+      throw new Error("please enter the neccessary required fileds");
 
     const newItem = await item.create(owner, name, description, price);
 

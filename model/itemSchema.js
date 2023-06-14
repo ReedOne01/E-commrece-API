@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
-const ObjectID = mongoose.schema.Type.ObjectId;
+const ObjectID = mongoose.Schema.Types.ObjectId;
 
-const itemSchema = mongoose.schema({
+const itemSchema = mongoose.Schema({
   owner: {
     type: ObjectID,
     required: true,
@@ -20,7 +20,10 @@ const itemSchema = mongoose.schema({
     type: Number,
     required: true,
   },
-  timestamps: true,
+  timestamps: {
+    type: Date,
+    default: Date.now(),
+  },
 });
 
 module.exports = mongoose.model("Item", itemSchema);

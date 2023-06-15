@@ -33,6 +33,7 @@ const register = async (req, res) => {
       status: "success",
       token: await generateToken(user._id),
       message: "user registered successfully",
+      data: user,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -50,9 +51,10 @@ const login = async (req, res) => {
 
     res.status(200).json({
       status: "success, user login successfully",
-      token: await generateToken(user._id),
+      token: User.token,
       data: user,
     });
+    console.log(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -60,10 +62,10 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    console.log(req.Authorization);
-    // req.User.tokens = req.User.tokens.findOne((token) => {
-    //   return token.token !== req.token;
-    // });
+    console.log(req.user.email);
+    req.user.tokens = req.user.tokens.findOne((token) => {
+      return token.token !== req.token;
+    });
     // await req.User.save();
     // res.send();
   } catch (error) {

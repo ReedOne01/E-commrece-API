@@ -18,11 +18,22 @@ const protect = async (req, res, next) => {
       .select("-__v")
       .select("-password");
     req.user = authenticatedUser;
-    console.log(authenticatedUser);
     next();
   } catch (error) {
     res.status(403).json({ error: error.message });
   }
 };
+const protectAndAuthorize = (req, res, next) => {
+  protect(req, res, () => {
+    if (req.Auth.id === req.params.id || req.Auth.isAdmin) {
+      next();
+    } else {
+      res
+        .status(403)
+        .json("You do not have AUTHORIZATION to perform this action.");
+    }
+  });
+  next();
+};
 
-module.exports = { protect };
+module.exports = { protect, protectAndAuthorize };

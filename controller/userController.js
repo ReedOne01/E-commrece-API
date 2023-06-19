@@ -19,18 +19,17 @@ const register = async (req, res) => {
 
     //The password has been hashed/encrypted from the user schema
 
-    // const salt = await bcrypt.genSalt();
-    // const hashPassword = await bcrypt.hash(password, salt);
+    // hash password
+    const salt = await bcrypt.genSalt();
+    const hashPassword = await bcrypt.hash(password, salt);
 
     const user = await User.create({
       email,
-      password,
+      password: hashPassword,
       fullname,
-      confirmPassword,
     });
 
     res.status(201).json({
-      status: "success",
       token: await generateToken(user._id),
       message: "user registered successfully",
       data: user,
@@ -41,20 +40,21 @@ const register = async (req, res) => {
 };
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = await req.body;
     if (!email || !password)
       throw new Error("email or password cannot be empty");
 
     const user = await User.findOne({ email }).select("+password");
     const comparePassword = await bcrypt.compare(password, user.password);
-    if (!user || !comparePassword) throw new Error("incorrect password");
+    if (!user || !comparePassword)
+      throw new Error("incorrect email or password");
 
     res.status(200).json({
-      status: "success, user login successfully",
+      status: "user login successfully",
       token: User.token,
       data: user,
     });
-    console.log(user);
+    // console.log(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -84,14 +84,48 @@ const logoutAll = async (req, res) => {
 
 const allUser = async (req, res) => {
   try {
-    const user = await User.find().select("+password");
+    const user = await User.find().select("-password");
     res.status(200).json({
       Total: user.length,
       users: user,
+      token,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports = { login, register, logout, logoutAll, allUser };
+const updateUser = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const userUpdate = await User.findByIdAndUpdate(id, {
+      $set: req.body,
+      new: true,
+    });
+    res.status(200).json({
+      message: "user updated successfully",
+      data: userUpdate,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+const deleteUser = async (req, res) => {
+  const { _id } = req.params.id;
+  try {
+    const deleteUser = await User.findByIdAndDelete(_id);
+    res.status(200).json("user deleted successfully");
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+};
+
+module.exports = {
+  login,
+  register,
+  logout,
+  logoutAll,
+  allUser,
+  updateUser,
+  deleteUser,
+};

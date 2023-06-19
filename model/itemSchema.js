@@ -1,22 +1,31 @@
 const mongoose = require("mongoose");
 // const ObjectID = mongoose.Schema.Types.ObjectId;
 
-const itemSchema = mongoose.Schema({
+const itemSchema = new mongoose.Schema({
   // owner: {
   //   type: ObjectID,
   //   required: true,
   //   ref: "User",
+  //   trim: true,
   // },
-  name: {
+  title: {
     type: String,
     trim: true,
     required: true,
+    unique: true,
   },
-  descriptiom: {
+  description: {
     type: String,
     required: true,
   },
   price: {
+    type: Number,
+    required: true,
+  },
+  color: {
+    type: String,
+  },
+  size: {
     type: Number,
     required: true,
   },

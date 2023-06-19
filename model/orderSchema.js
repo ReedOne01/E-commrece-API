@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 // const ObjectID = mongoose.schema.Types.ObjectId;
 
-const cartSchema = mongoose.model(
+const orderSchema = mongoose.model(
   {
     userId: {
       type: String,
@@ -11,6 +11,7 @@ const cartSchema = mongoose.model(
       {
         itemID: {
           type: String,
+          required: true,
         },
         quantity: {
           type: Number,
@@ -19,8 +20,10 @@ const cartSchema = mongoose.model(
         },
       },
     ],
+    amount: { type: Number, required: true },
+    status: { type: String, default: "pending" },
   },
   { timestapms: true }
 );
 
-module.exports = mongoose.model("Cart", cartSchema);
+module.exports = mongoose.model("Order", orderSchema);

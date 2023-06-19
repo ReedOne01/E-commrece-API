@@ -3,15 +3,20 @@ const Auth = require("../middleware/authMiddleware");
 
 const createItem = async (req, res) => {
   try {
-    const { owner, name, description, price } = req.body;
-    if (!name || !description || !price)
-      throw new Error("please enter the neccessary required fileds");
+    const info = ({ owner, name, description, price } = req.body);
 
-    const newItem = await item.create(owner, name, description, price);
+    // if (!mongoose.Types.ObjectId.isValid(owner))
+    // throw new Error(`no owner with name ${owner} found`);
+    if (!name || !description || !price)
+      if (!info) throw new Error("please enter the neccessary required fileds");
+
+    // const newItem = await item.create(owner, name, description, price);
+    const newItem = await item.create(info);
 
     res.status(201).json({
       message: "item created successfully",
-      data: newItem,
+      // data: newItem,
+      data: info,
     });
     console.log("item created successfully");
   } catch (error) {
@@ -50,10 +55,10 @@ const getAllItems = async (req, res) => {
     const items = await item.find();
     res.status(200).json({
       message: "success",
-      lenght: items.length(),
+      // Total: item.length(),
       data: items,
     });
-    console.log("item created successfully");
+    console.log("item gotten successfully");
   } catch (error) {
     res.status(404).json({ error: error.message });
   }

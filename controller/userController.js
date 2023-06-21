@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("../model/userSchema");
 const jwt = require("jsonwebtoken");
+const { protectAndAdmin } = require("../middleware/authMiddleware");
 
 const generateToken = async (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
@@ -12,20 +13,21 @@ const register = async (req, res) => {
   try {
     const { fullname, email, password, confirmPassword } = req.body;
     if (!email || !password || !fullname || !confirmPassword)
-      throw new Error("please enter necessary information");
+      throw new Error("please enter the necessary information");
 
     const existingUser = await User.findOne({ email });
     if (existingUser) throw new Error("user already exists");
 
     //The password has been hashed/encrypted from the user schema
 
-    // hash password
-    const salt = await bcrypt.genSalt();
-    const hashPassword = await bcrypt.hash(password, salt);
+    // // hash password
+    // const salt = await bcrypt.genSalt();
+    // const hashPassword = await bcrypt.hash(password, salt);
 
     const user = await User.create({
       email,
-      password: hashPassword,
+      password,
+      confirmPassword,
       fullname,
     });
 
@@ -34,10 +36,12 @@ const register = async (req, res) => {
       message: "user registered successfully",
       data: user,
     });
+    console.log("hey there!, welcome to this project");
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 const login = async (req, res) => {
   try {
     const { email, password } = await req.body;
@@ -51,10 +55,10 @@ const login = async (req, res) => {
 
     res.status(200).json({
       status: "user login successfully",
-      token: User.token,
+      token: user.token,
       data: user,
     });
-    // console.log(user);
+    console.log(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -83,12 +87,14 @@ const logoutAll = async (req, res) => {
 };
 
 const allUser = async (req, res) => {
+  const query = req.query.new;
   try {
-    const user = await User.find().select("-password");
+    const user = query
+      ? await User.find().sort({ _id: -1 }).limit(5)
+      : await User.find().select("-password");
     res.status(200).json({
       Total: user.length,
       users: user,
-      token,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -98,10 +104,13 @@ const allUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const id = req.params.id;
-    const userUpdate = await User.findByIdAndUpdate(id, {
-      $set: req.body,
-      new: true,
-    });
+    const userUpdate = await User.findByIdAndUpdate(
+      id,
+      {
+        $set: req.body,
+      },
+      { new: true }
+    );
     res.status(200).json({
       message: "user updated successfully",
       data: userUpdate,
@@ -111,12 +120,30 @@ const updateUser = async (req, res) => {
   }
 };
 const deleteUser = async (req, res) => {
+  if (!protectAndAdmin) throw new Error("you are not authorized to delete");
   const { _id } = req.params.id;
   try {
     const deleteUser = await User.findByIdAndDelete(_id);
     res.status(200).json("user deleted successfully");
   } catch (error) {
     res.status(401).json({ error: error.message });
+  }
+};
+
+// To get the user stats from the DB
+const stats = async (req, res) => {
+  const date = new Date();
+  const lastYear = new Date(date.setFullYear(date.getFullYear() - 1));
+  try {
+    const data = await User.aggregate([
+      { $match: { createdAt: { $gt: lastYear } } },
+
+      { $project: { month: { $month: "createdAt" } } },
+      { $group: { _id: "$month", Total: { $sum: 1 } } },
+    ]);
+    res.status(200).json({ data });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -128,4 +155,5 @@ module.exports = {
   allUser,
   updateUser,
   deleteUser,
+  stats,
 };

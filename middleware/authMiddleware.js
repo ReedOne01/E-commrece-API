@@ -23,17 +23,20 @@ const protect = async (req, res, next) => {
     res.status(403).json({ error: error.message });
   }
 };
-const protectAndAuthorize = (req, res, next) => {
+const protectAndAdmin = (req, res, next) => {
   protect(req, res, () => {
-    if (req.Auth.id === req.params.id || req.Auth.isAdmin) {
-      next();
+    if (!req.user.isAdmin) {
+      res.status(403).send("you are not authorized to perform this action");
     } else {
-      res
-        .status(403)
-        .json("You do not have AUTHORIZATION to perform this action.");
+      return next();
+      // throw new Error("You do not have AUTHORIZATION to perform this action.");
     }
+    // res
+    //   .status(403)
+    //   .json("You do not have AUTHORIZATION to perform this action.");
+    // console.log(req.user);
   });
-  next();
+  // next();
 };
 
-module.exports = { protect, protectAndAuthorize };
+module.exports = { protect, protectAndAdmin };

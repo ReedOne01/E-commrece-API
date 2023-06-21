@@ -48,20 +48,20 @@ const userSchema = mongoose.Schema(
     },
     isAdmin: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
   { timestamps: true }
 );
-// userSchema.pre("save", async function (next) {
-//Only runs if the password is modified
-// if (!this.isModified("password")) return next();
+userSchema.pre("save", async function (next) {
+  //Only runs if the password is modified
+  if (!this.isModified("password")) return next();
 
-// hash the password with cost 12
-// this.password = await bcrypt.hash(this.password, 12);
+  // hash the password with cost 12
+  this.password = await bcrypt.hash(this.password, 12);
 
-//Delete comfirmPassword field
-//   this.confirmPassword = undefined;
-//   next();
-// });
+  //Delete comfirmPassword field
+  this.confirmPassword = undefined;
+  next();
+});
 module.exports = mongoose.model("User", userSchema);

@@ -15,6 +15,6 @@ router.post("/items", protect, createItem);
 router.delete("/items/id", protect, deleteItem);
 router.get("/items", getAllItems);
 router.get("/items/id", getItem);
-router.patch("/items/id", updateItem);
+router.patch("/items/id", protect, updateItem);
 
 module.exports = router;

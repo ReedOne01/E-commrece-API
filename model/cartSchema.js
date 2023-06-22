@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 // const ObjectID = mongoose.schema.Types.ObjectId;
 
-const cartSchema = mongoose.model(
+const cartSchema = mongoose.Schema(
   {
     userId: {
       type: String,

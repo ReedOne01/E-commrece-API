@@ -2,6 +2,11 @@ const bcrypt = require("bcryptjs");
 const User = require("../model/userSchema");
 const jwt = require("jsonwebtoken");
 const { protectAndAdmin } = require("../middleware/authMiddleware");
+const emailValidator = require("deep-email-validator");
+
+async function isEmailValid(email) {
+  return emailValidator.validate(email);
+}
 
 const generateToken = async (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
@@ -14,11 +19,17 @@ const register = async (req, res) => {
     const { fullname, email, password, confirmPassword } = req.body;
     if (!email || !password || !fullname || !confirmPassword)
       throw new Error("please enter the necessary information");
-
     const existingUser = await User.findOne({ email });
     if (existingUser) throw new Error("user already exists");
 
-    //The password has been hashed/encrypted from the user schema
+    const { valid, reason, validators } = await isEmailValid(email);
+    if (!valid)
+      return res.status(400).send({
+        message: " please enter a valid email address",
+        reason: validators[reason].reason,
+      });
+
+    //The password has been hashed/encrypted from the userSchema
 
     // // hash password
     // const salt = await bcrypt.genSalt();
@@ -42,6 +53,16 @@ const register = async (req, res) => {
   }
 };
 
+const getUser = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const user = await User.findOne({ _id: id });
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+};
+
 const login = async (req, res) => {
   try {
     const { email, password } = await req.body;
@@ -58,7 +79,6 @@ const login = async (req, res) => {
       token: user.token,
       data: user,
     });
-    console.log(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -66,7 +86,6 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    console.log(req.user.email);
     req.user.tokens = req.user.tokens.findOne((token) => {
       return token.token !== req.token;
     });
@@ -121,9 +140,9 @@ const updateUser = async (req, res) => {
 };
 const deleteUser = async (req, res) => {
   if (!protectAndAdmin) throw new Error("you are not authorized to delete");
-  const { _id } = req.params.id;
+  const id = req.params.id;
   try {
-    const deleteUser = await User.findByIdAndDelete(_id);
+    const deleteUser = await User.findByIdAndDelete(id);
     res.status(200).json("user deleted successfully");
   } catch (error) {
     res.status(401).json({ error: error.message });
@@ -152,6 +171,7 @@ module.exports = {
   register,
   logout,
   logoutAll,
+  getUser,
   allUser,
   updateUser,
   deleteUser,

@@ -44,11 +44,10 @@ const userSchema = mongoose.Schema(
       unique: true,
       lowercase: true,
       required: [true, "please enter your email address"],
-      validate: [validator.isEmail, "please enter a valid email address"],
     },
     isAdmin: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   { timestamps: true }

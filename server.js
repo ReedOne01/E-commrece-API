@@ -9,6 +9,8 @@ connectDB(process.env.MONGO_URI);
 
 app.use("/auth/user/", require("./routes/userRoute"));
 app.use("/", require("./routes/itemRoute"));
+app.use("/order", require("./routes/orderRoute"));
+app.use("/cart", require("./routes/cartRoute"));
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

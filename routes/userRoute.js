@@ -4,6 +4,7 @@ const {
   register,
   logout,
   logoutAll,
+  getUser,
   allUser,
   updateUser,
   deleteUser,
@@ -12,10 +13,11 @@ const {
 const { protect, protectAndAdmin } = require("../middleware/authMiddleware");
 const router = express.Router();
 
-router.get("/allUsers", allUser);
+router.get("/", allUser);
+router.get("/:id", getUser);
 router.post("/login", protect, login);
 router.post("/logout", protect, logout);
-router.post("/logout", protect, logoutAll);
+router.post("/logoutAll", protect, logoutAll);
 router.patch("/:id", protectAndAdmin, updateUser);
 router.delete("/:id", protectAndAdmin, deleteUser);
 router.post("/register", register);

@@ -27,7 +27,7 @@ const createItem = async (req, res) => {
 
 const deleteItem = async (req, res) => {
   try {
-    const { id } = req.params.id;
+    const id = req.params.id;
     const deletedItem = await item.findByIdAndDelete(id);
     res.status(200).json({
       message: "Below item has been deleted successfully.",

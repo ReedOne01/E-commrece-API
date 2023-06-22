@@ -13,8 +13,8 @@ const router = express.Router();
 
 router.post("/items", protect, createItem);
 router.delete("/items/id", protect, deleteItem);
-router.get("/items", getAllItems);
-router.get("/items/id", getItem);
+router.get("/items", protect, getAllItems);
+router.get("/items/id", protect, getItem);
 router.patch("/items/id", protect, updateItem);
 
 module.exports = router;

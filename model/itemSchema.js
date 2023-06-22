@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 // const ObjectID = mongoose.Schema.Types.ObjectId;
 
-const itemSchema = new mongoose.Schema(
+const itemSchema = mongoose.Schema(
   {
     // owner: {
     //   type: ObjectID,
